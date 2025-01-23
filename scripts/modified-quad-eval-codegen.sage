@@ -1,0 +1,355 @@
+import mpmath as mp
+from mpmath import mpf, nstr
+import sys
+import numpy
+import time
+from sage.stats.distributions.discrete_gaussian_polynomial import DiscreteGaussianDistributionPolynomialSampler
+from estimator import *
+
+# We do not claim the knowledge of this script and only modify the existant ones from the script subdirectory from the LaZer Library
+
+mp.mp.prec = 512
+prec = 8  # precision for nstr
+
+assert len(sys.argv) == 2
+params_file = sys.argv[1]
+
+load("codegen.sage")
+blockPrint()
+lext = 1  # fixed for quad-proof
+
+verbose = 1
+code = 1
+
+def smoothing_param(dimension_lattice, lambda_n_lattice, eps):
+    bound = sqrt(ln(2*dimension_lattice * (1 + 1/eps))/pi)
+    return bound * lambda_n_lattice
+
+def smoothing_param_bound(dim, cst, eps):
+    bound = sqrt(ln(2*dim * (1 + 1/eps))/pi)
+    return ceil(bound * cst)
+
+# bound B
+def Bound_():
+    global stdev2
+    global m2
+    global d
+    global eta
+    global D
+    global kmsis
+    global gamma
+    return stdev2 * mp.sqrt(2 * m2 * d) + mpf(eta) * 2 ** (D-1) * mp.sqrt(kmsis*d) + (gamma * mp.sqrt(kmsis * d))/mpf(2)
+
+
+# bound B1
+def Bound1():
+    global stdev1
+    global m1
+    global d
+    return mpf(2) * stdev1 * mp.sqrt(2 * m1 * d)
+
+
+# bound B2
+def Bound2():
+    return mpf(2) * Bound_()
+
+
+# bound B on the extracted MSIS solution
+def Bound():
+    global eta
+    return 4 * mpf(eta) * mp.sqrt(Bound1() ** 2 + Bound2() ** 2)
+
+# Estimate the hardness of MLWE, the problem defined by: 
+#  - Distinguishing if (A,As + e) from the uniform for a public matrix A in Rq^(n x n)
+# It returns the root hermite factor or either the default value 2^1
+def findMLWEdelta(n, d, p, stddev):
+    n = n * d
+    law=ND.DiscreteGaussian(stddev)
+    params = LWE.Parameters(n=n,q=p,Xs = law, Xe = law, m=n)
+    L = LWE.estimate.rough(params)
+    try:
+        delta_enum = L['usvp']['delta'] 
+    except:
+        delta_enum = 2
+    return delta_enum
+    
+# Estimate the hardness of MSIS, the problem defined by: 
+# - Find s != 0 such that |s| <= betasuch and resolving A*s = 0 for A in Rq^(n x m)
+# It returns the root hermite factor or either the default value 2^1
+def get_delta_msis(beta, n, d, q):
+    log2q = log(q, 2)
+    log2beta = mp.log(beta, 2)
+    delta = mpf(2) ** (log2beta ** 2 / mpf(4*n*d*log2q))
+    return delta
+
+loaded = 1
+
+# constants, dont change
+KAPPA = 128    # security param, bit security
+DELTA128 = 1.0044  # root hermite factor for 128-bit security
+
+param_sec = 2^(-KAPPA)
+epsilon = 2^(-param_sec)
+# number of irreducible factors of X^d + 1 modulo each q_i,  q_i = 2l+1 (mod 4l)
+L = 2
+NADDS = 128  # chose P big enough for this many additions
+
+k = 2
+load(params_file)
+name = "modif_eval_"+ name
+m1 = k*(m1 + l) # We keep l as the script of parameters can be used for the lnp framework from the LaZer Library
+                # We just show here that we do not need to separate bounded and unbounded message: setting m1 to (m1 + l) and l to 0
+                # Third point: we enhance k* as we define the commitment scheme over the randomized encoding of size k * m1
+                # and need to provide security for this length and not for m1 only
+l = 0
+
+# number of repetitions for boosting soundness, we assume lambda is even
+lmbda = 2 * ceil(KAPPA/(2*log2q))
+
+# lext fixed for quad-eval proof
+lext = lmbda/2 + 1  # fixed for quad-eval-proof
+
+degree = k * d
+b = 2^(log2q//k)
+p = b^k + 1
+
+if d not in [64, 128]:
+    err("d not in [64,128]")
+log2d = log(d, 2)
+
+n_div = 1  # number of divisors of q
+
+D = 0       # dropping low-order bits of t_A
+gamma = 0   # dropping low-order bits of w
+
+# challenge space
+if d == 64 and L == 2 and log2q >= 4:
+    omega = 8
+    eta = 140
+    Csize = 2 ** 129
+elif d == 128 and L == 2 and log2q >= 4:
+    omega = 2
+    eta = 59
+    Csize = 2 ** 147
+else:
+    err("challenge space undefined")
+
+# sample from [-omega,omega] <=> sample from [0,2*omega] - omega
+omega_bits = ceil(log(2*omega+1, 2))
+
+# Relations parameters : standard deviations and bounds
+lambda_classic = 1
+lambda_ideal_p = sqrt(p)
+# the distribution of the message s_1 is not restricted
+sigma_1 = smoothing_param(m1 * degree, lambda_classic, param_sec)                            # SD of the randomized encoding function
+frak_s1 = max(smoothing_param(m1 * degree, lambda_classic, param_sec)/sqrt(2),sqrt(2)/(b-1) * smoothing_param(m1 * degree, lambda_ideal_p ,param_sec))        # SD of the randomized encoding function of y_1
+stdev1 = (eta*(b +1) * sigma_1 + frak_s1)  # SD of the hint z1
+
+sigma_2 = 0                            # SD of the randomness s_2 : later (depends on length of randomness s2)
+frak_s2 = 0                            # SD of y_2 : later (depends on length of randomness s2)
+varsigma_2 = 0                         # SD to ensure hardness of Hint-MLWE : later (depends on length of randomness s2)
+stdev2 = (eta* sigma_2 + frak_s2)      # SD of the hint z2   
+
+kmlwe = 0           # MLWE dim, to be determined
+easy_mlwe_dim = 0   # lower bound for MLWE dim
+hard_mlwe_dim = 64  # guess for upper bound for MLWE dim
+
+# find upper actual bound (and possibly improve lower bound)
+while True:
+    sigma_2 = smoothing_param_bound(2*(2*hard_mlwe_dim*d), 1, param_sec) 
+    frak_s2 = smoothing_param_bound(2*m1*d, (sqrt(2**(log2q+1))/(b-1)), param_sec)
+    varsigma_2 = ceil(sqrt( 1/2 * (1/(sigma_2^2) + (eta^2)/(frak_s2^2) )^(-1)))
+    
+    delta_mlwe = max(findMLWEdelta(hard_mlwe_dim, d, 2 ** log2q, varsigma_2),findMLWEdelta(hard_mlwe_dim, d, 2 ** log2q, sigma_2))
+    
+    if delta_mlwe <= DELTA128:
+        print(f"MLWE dim {hard_mlwe_dim}: hard")
+        break
+    print(f"MLWE dim {hard_mlwe_dim}: easy")
+    easy_mlwe_dim = hard_mlwe_dim
+    hard_mlwe_dim *= 2
+
+# binary search for smallest MLWE dimension that is still hard
+while True:
+    kmlwe = (easy_mlwe_dim + hard_mlwe_dim) / 2
+    sigma_2 = smoothing_param_bound(2*(2*kmlwe*d), 1, param_sec)   
+    frak_s2 = smoothing_param_bound(2*m1*d, (sqrt(2**(log2q+1))/(b-1)), param_sec)
+    varsigma_2 = ceil(sqrt( 1/2 * (1/(sigma_2^2) + (eta^2)/(frak_s2^2) )^(-1)))
+    
+    delta_mlwe = max(findMLWEdelta(kmlwe, d, 2 ** log2q, varsigma_2),findMLWEdelta(kmlwe, d, 2 ** log2q, sigma_2))
+    
+    if delta_mlwe <= DELTA128:
+        print(f"MLWE dim {kmlwe} : hard")
+        hard_mlwe_dim = kmlwe
+    else:
+        print(f"MLWE dim {kmlwe} : easy")
+        easy_mlwe_dim = kmlwe
+    if hard_mlwe_dim == easy_mlwe_dim + 1:
+        kmlwe = hard_mlwe_dim
+        print(f"found MLWE dim : {kmlwe}")
+        break
+
+# Find an appropriate Module-SIS dimension
+kmsis = 0   # dimension of the MSIS problem
+while True:
+    kmsis += 1
+    m2 = kmlwe + kmsis + l + lmbda / 2 + 1
+    sigma_2 = smoothing_param_bound(2*(2*kmlwe*d), 1, param_sec)
+    frak_s2 = smoothing_param_bound(2*m1*d, (sqrt(2*p)/(b-1)), param_sec)
+    stdev2 = (eta* sigma_2 + frak_s2)
+    if get_delta_msis(Bound(), kmsis, d, 2 ** log2q) < DELTA128 and Bound() < 2 ** log2q:
+        break
+
+# Find the largest possible gamma which makes the MSIS solution still small.
+gamma = 2 ** log2q
+while True:       # searching for right gamma
+    gamma /= 2
+    if get_delta_msis(Bound(), kmsis, d, 2 ** log2q) < DELTA128 and Bound() < 2 ** log2q:
+        break
+
+# Finding exact values for q, b and gamma:
+true_gamma_found = false                                         # Boolean for finding correct gamma
+b = 2^(log2q//k)                                                 # we need q1 to be congruent to 2l+1 modulo 4l
+p = b^2 + 1 
+while true_gamma_found == false:
+    b = b+1
+    p = b^2 + 1  
+    while not is_prime(p) or not p%8 == 5:
+        b = b+1
+        p = b^2 + 1  
+    div_b2 = divisors(b^2)                                                                  # consider divisors of b
+    for i in div_b2:                 
+        if gamma*4/5 < i and i <= gamma and is_even(i):                                   # find a divisor which is close to gamma
+            gamma = i                                                                     # we found a good candidate for gamma
+            true_gamma_found = true
+m = (p-1) / gamma
+
+# Find the largest possible D which makes the MSIS solution small
+D = log2q
+while True:
+    D -= 1
+    if get_delta_msis(Bound(), kmsis, d, p) < DELTA128 and Bound() < 2 ** log2q and 2 ** (D-1)*omega*d < gamma:
+        break
+
+# update MLWE root hermite factor with exact p
+delta_mlwe = max(findMLWEdelta(kmlwe, d, p, varsigma_2),findMLWEdelta(kmlwe, d, p, sigma_2))
+
+# computation of the proof size 
+full_size = kmsis * d * (log2q - D) + (l+ lmbda/2 + 1)* d * log2q   
+challenge = ceil(log(2*omega+1,2)) * d 
+short_size1 = m1 * d * (ceil(log(stdev1,2) + 2.57)) + (m2 - kmsis) * d * (ceil(log(stdev2,2) + 2.57))
+hint = 2.25 * kmsis * d
+
+enablePrint()
+printv(f"auto-generated by modified-quad-eval-codegen.sage from {params_file}.")
+printv(f"")
+
+
+if not (kmlwe >= 0 and kmlwe == m2 - kmsis - l - lmbda/2 - 1):
+    err("protocol not simulatable")
+
+printv(
+    f"the commitment scheme is hiding under MLWE({kmlwe},{kmsis+l+lmbda/2+ 1}) with sd={nstr(sigma_2, prec)})") 
+printv(
+    f"protocol is simulatable under Hint-MLWE implied by MLWE({kmlwe},{kmsis+l+lmbda/2+ 1}) with sd={nstr(varsigma_2, prec)})") 
+
+eknow = mpf(1)/mpf(Csize) + p ** (-d/L) + p ** (-lmbda)
+printv(
+    f"protocol is knowledge-sound with knowledge error <= 2^({nstr(mp.ceil(mp.log(eknow,2)),prec)})")
+
+# print params
+printv(f"")
+printv(f"Ring")
+printv(f"degree d = {d}")
+printv(f"modulus p = {p}, log(p) ~ {nstr(mp.log(p,2),prec)}")
+printv(f"base decomposition b = {b}")
+printv(f"")
+printv(f"Compression")
+printv(f"D = {D}")
+printv(f"gamma = {gamma}, log(gamma) ~ {nstr(mp.log(gamma,2),prec)}")
+printv(f"m = (q-1)/gamma = {m}, log(m) ~ {nstr(mp.log(m,2),prec)}")
+printv(f"")
+printv(f"Dimensions of secrets")
+printv(f"s1: m1 = {m1/2}")
+printv(f"s2: m2 = {m2}")
+printv(f"")
+printv(f"Size of secrets")
+printv(f"s1 unbounded")
+printv(f"s2 uniform in distributed with standard deviation {nstr(sigma_2, prec)}")
+printv(f"")
+printv(f"Challenge space")
+printv(
+    f"c uniform in [-omega,omega] = [{-omega},{omega}], o(c)=c, sqrt(l1(o(c)*c)) <= eta = {eta}") 
+printv(f"")
+printv(f"")
+printv(f"Security")
+printv(f"MSIS dimension: {kmsis}")
+printv(
+    f"MSIS root hermite factor: {nstr(get_delta_msis(Bound(), kmsis, d, p), prec)}")
+printv(f"MLWE dimension: {kmlwe}")
+printv(f"MLWE root hermite factor: {nstr(mpf(delta_mlwe), prec)}")
+printv(f"")
+printv(f"Proof size of the modified quadratic and eval proof ")
+printv(f"Total proof size in KB:  { round((full_size + challenge + short_size1 + hint)/(2^13) , 2)}")
+printv(f"full-sized polynomials in KB: {round(full_size/(2^13) , 2)}")
+printv(f"challenge c in KB: {round(challenge/(2^13) , 2)}")
+printv(f"short-sized polynomials in KB: {round((short_size1 + hint)/(2^13) , 2)}")
+printv(f"")
+
+q_nlimbs = int2limbs(p, -1)[1]
+if m % 2 == 0:
+    mby2 = m / 2
+else:
+    mby2 = 0
+
+minP = min_P(d, p, NADDS)
+moduli = moduli_list(nbit, d, minP)[0]
+P = prod(moduli)
+assert P >= minP
+nmoduli = len(moduli)
+Pmodq = redc(Mod(P, p), p)
+Ppmodq = []
+Ppmodq_str = []
+for i in range(len(moduli)):
+    Ppmodq_str += [f"{name}_Ppmodq_{i}"]
+    Ppmodq += [redc(Mod(P/moduli[i], p), p)]
+Ppmodq_array = strlist2ptrarray(Ppmodq_str)
+
+out = ""
+out += f"""
+#include "lazer.h"
+{int_t(f"{name}_q", p)}
+{int_t(f"{name}_qminus1", p - 1)}
+{int_t(f"{name}_b", b, q_nlimbs)}
+{int_t(f"{name}_m", m, q_nlimbs)}
+{int_t(f"{name}_mby2", mby2, q_nlimbs)}
+{int_t(f"{name}_gamma", gamma, q_nlimbs)}
+{int_t(f"{name}_gammaby2", gamma / 2, q_nlimbs)}
+{int_t(f"{name}_pow2D", 2^D, q_nlimbs)}
+{int_t(f"{name}_pow2Dby2", 2^D / 2, q_nlimbs)}
+{int_t(f"{name}_Bsq", floor(Bound_()^2), 2*q_nlimbs)}
+{int_t(f"{name}_sigma_1", int(mp.nint(sigma_1^2)), 2*q_nlimbs)}
+{int_t(f"{name}_sigma_2", int(mp.nint(sigma_2^2)), 2*q_nlimbs)}
+{int_t(f"{name}_frak_s1", int(mp.nint(frak_s1^2)), 2*q_nlimbs)}
+{int_t(f"{name}_frak_s2", int(mp.nint(frak_s2^2)), 2*q_nlimbs)}
+{int_t(f"{name}_inv2", redc(1/2 % p, p))}
+{int_t(f"{name}_Pmodq", Pmodq, q_nlimbs)}
+"""
+for i in range(len(moduli)):
+    out += int_t(f"{name}_Ppmodq_{i}", Ppmodq[i], q_nlimbs) + f"\n"
+out += f"""
+static const int_srcptr {name}_Ppmodq[] = {Ppmodq_array};
+static const polyring_t {name}_ring = {{{{{name}_q, {d}, {ceil(log(p-1,2))}, {log2d}, moduli_d{d}, {nmoduli}, {name}_Pmodq, {name}_Ppmodq, {name}_inv2}}}};
+static const dcompress_params_t {name}_dcomp = {{{{ {name}_q, {name}_qminus1, {name}_m, {name}_mby2, {name}_gamma, {name}_gammaby2, {name}_pow2D, {name}_pow2Dby2, {D}, {m % 2}, {ceil(log(m,2))} }}}};
+static const modified_abdlop_params_t {name}_quad_eval = {{{{ {name}_ring, {name}_dcomp, {name}_b, {m1}, {m2}, {l}, {lext},      {kmsis}, {name}_Bsq, {omega}, {omega_bits}, {eta}, {name}_sigma_1, {ceil(log(sigma_1,2))}, {name}_sigma_2, {ceil(log(sigma_2,2))}, {name}_frak_s1, {ceil(log(frak_s1,2))}, {name}_frak_s2, {ceil(log(frak_s2,2))}}}}};
+static const modified_abdlop_params_t {name}_quad_many = {{{{ {name}_ring, {name}_dcomp, {name}_b, {m1}, {m2}, {l+lmbda/2}, {1}, {kmsis}, {name}_Bsq, {omega}, {omega_bits}, {eta}, {name}_sigma_1, {ceil(log(sigma_1,2))}, {name}_sigma_2, {ceil(log(sigma_2,2))}, {name}_frak_s1, {ceil(log(frak_s1,2))}, {name}_frak_s2, {ceil(log(frak_s2,2))}}}}};
+static const modified_quad_eval_params_t {name} = {{{{ {name}_quad_eval, {name}_quad_many, {lmbda}}}}};
+"""
+
+printc(out)
+
+sys.exit(int(0))
+
+# Original scripts and proofs are coming from :
+# [1] Lattice-Based Zero-Knowledge Proofs Under a Few Dozen Kilobytes
+# https://doi.org/10.3929/ethz-b-000574844
