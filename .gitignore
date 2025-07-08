@@ -2,9 +2,9 @@ lazer.h
 *.a
 *.so
 
-scripts/modified-abdlop-codegen.sage.py
-scripts/modified-quad-codegen.sage.py
-scripts/modified-quad-eval-codegen.sage.py
+scripts/rf-abdlop-codegen.sage.py
+scripts/rf-quad-codegen.sage.py
+scripts/rf-quad-eval-codegen.sage.py
 scripts/moduli.sage.py
 scripts/estimator/
 
@@ -12,9 +12,9 @@ src/*.o
 src/lazer.c
 
 tests/encoding-test
-tests/modified-abdlop-test
-tests/modified-quad-test
-tests/modified-quad-many-test
-tests/modified-quad-eval-test
+tests/rf-abdlop-test
+tests/rf-quad-test
+tests/rf-quad-many-test
+tests/rf-quad-eval-test
 
 tests/*.h

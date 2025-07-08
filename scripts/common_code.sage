@@ -29,6 +29,9 @@ def printc(x):
     if code == 1:
         print(x)
 
+def smoothing_param_bound(dim, cst, eps):
+    bound = mp.sqrt(mp.ln(2*dim * (1 + 1/eps))/pi)
+    return ceil(bound * cst)
 
 # codegen: sage list of integers to array of integers
 def intlist2intarray(list):
@@ -216,39 +219,25 @@ def root_list(root, exps, p, mont):
     return l
 
 
-# Estimating MLWE hardness: Distinguish (A, A*s mod q) from (A,b)
-# where A in Rq^(m x n), coefficients of s sampled uniformly between
-# -nu and nu. Returns the root hermite factor.
-# XXX add references
-# XXX update to new LWE estimator
-# def get_delta_mlwe_new(nu, n, d, q):
-#    n = n * d
-#    lweparams = LWE.Parameters(
-#        n, q, ND.Uniform(-nu, nu), ND.Uniform(-nu, nu), n)
-#    L = LWE.estimate(lweparams)
-def get_delta_mlwe(nu, n, d, q):
-    #XXXload("https://bitbucket.org/malb/lwe-estimator/raw/HEAD/estimator.py")
-    load("../third_party/estimator.py")
+# Estimate the hardness of MLWE, the problem defined by: 
+#  - Distinguishing if (A,As + e) from the uniform for a public matrix A in Rq^(n x n)
+# It returns the root hermite factor or either the default value 2^1
+def findMLWEdelta(n, d, p, stddev):
     n = n * d
-    stdev = mp.sqrt(mpf((2*nu+1) ** 2 - 1)/mpf(12))
-    alpha = alphaf(sigmaf(stdev), q)
-    # set_verbose(1)
-    L = estimate_lwe(n, alpha, q, reduction_cost_model=BKZ.enum)
-    delta_enum1 = L['usvp']['delta_0']
-    delta_enum2 = L['dec']['delta_0']
-    delta_enum3 = L['dual']['delta_0']
-    L = estimate_lwe(n, alpha, q, reduction_cost_model=BKZ.sieve)
-    delta_sieve1 = L['usvp']['delta_0']
-    delta_sieve2 = L['dec']['delta_0']
-    delta_sieve3 = L['dual']['delta_0']
-    return max(delta_enum1, delta_enum2, delta_enum3, delta_sieve1, delta_sieve2, delta_sieve3)
-
-
-# Estimate MSIS hardness: Find non-zero s such that A*s = 0 for
-# A in Rq^(n x m) and |s| <= beta. Returns the root hermite factor.
-# XXX add references
+    law=ND.DiscreteGaussian(stddev)
+    params = LWE.Parameters(n=n,q=p,Xs = law, Xe = law, m=n)
+    L = LWE.estimate.rough(params)
+    try:
+        delta_enum = L['usvp']['delta'] 
+    except:
+        delta_enum = 2
+    return delta_enum
+    
+# Estimate the hardness of MSIS, the problem defined by: 
+# - Find s != 0 such that |s| <= beta such and resolving A*s = 0 for A in Rq^(n x m)
+# It returns the root hermite factor or either the default value 2^1
 def get_delta_msis(beta, n, d, q):
-    log2q = log(q, 2)
+    log2q = mp.log(q, 2)
     log2beta = mp.log(beta, 2)
     delta = mpf(2) ** (log2beta ** 2 / mpf(4*n*d*log2q))
     return delta

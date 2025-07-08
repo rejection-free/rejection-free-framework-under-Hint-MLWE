@@ -5,9 +5,9 @@ static void
 _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
                       spolymat_ptr Rprime2i[], spolyvec_ptr rprime1i[],
                       poly_ptr rprime0i[], unsigned int M, polyvec_t h,
-                      const intmat_t v, const modified_quad_eval_params_t params)
+                      const intmat_t v, const rf_quad_eval_params_t params)
 {
-  modified_abdlop_params_srcptr quad_eval = params->quad_eval;
+  rf_abdlop_params_srcptr quad_eval = params->quad_eval;
   polyring_srcptr Rq = quad_eval->ring;
   const unsigned int d = polyring_get_deg (Rq);
   const unsigned int lambda = params->lambda;
@@ -35,8 +35,8 @@ _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
   spolymat_alloc (t3, Rq, n, n, (n * n - n) / 2 + n);
 
   /* compute R2i, r1i, r0i for lambda/2 additional equations */
-  STOPWATCH_START (stopwatch_modified_quad_eval_schwartz_zippel_quad,
-                   "modified_quad_eval_prove_schwartz_zippel_quad");
+  STOPWATCH_START (stopwatch_rf_quad_eval_schwartz_zippel_quad,
+                   "rf_quad_eval_prove_schwartz_zippel_quad");
   for (i = 0; i < N_; i++)
     {
       /* R2i */
@@ -66,10 +66,10 @@ _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
       spolymat_scale (t1, Rq->inv2, t0);
       spolymat_mod (R2i[i], t1);
     }
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_schwartz_zippel_quad);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_schwartz_zippel_quad);
 
-  STOPWATCH_START (stopwatch_modified_quad_eval_schwartz_zippel_lin,
-                   "modified_quad_eval_prove_schwartz_zippel_lin");
+  STOPWATCH_START (stopwatch_rf_quad_eval_schwartz_zippel_lin,
+                   "rf_quad_eval_prove_schwartz_zippel_lin");
   for (i = 0; i < N_; i++)
     {
       /* r1i */
@@ -140,10 +140,10 @@ _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
         }
       r1i[i]->sorted = 1; /* above for loop appends */
     }
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_schwartz_zippel_lin);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_schwartz_zippel_lin);
 
-  STOPWATCH_START (stopwatch_modified_quad_eval_schwartz_zippel_const,
-                   "modified_quad_eval_prove_schwartz_zippel_const");
+  STOPWATCH_START (stopwatch_rf_quad_eval_schwartz_zippel_const,
+                   "rf_quad_eval_prove_schwartz_zippel_const");
   if (r0i != NULL)
     {
       for (i = 0; i < N_; i++)
@@ -174,7 +174,7 @@ _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
           poly_sub (r0i[i], r0i[i], hi, 0);
         }
     }
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_schwartz_zippel_const);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_schwartz_zippel_const);
 
 #ifdef XXX
   /* zero R1i scratch space */
@@ -201,15 +201,15 @@ _schwartz_zippel_int_2 (spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
 }
 
 static void
-_modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h,
+_rf_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h,
                       polyvec_t randencs1, polyvec_t m, polyvec_t s2,
                       polymat_t Bprime, spolymat_ptr R2i[], spolyvec_ptr r1i[],
                       spolymat_ptr Rprime2i[], spolyvec_ptr rprime1i[],
                       poly_ptr rprime0i[], unsigned int M,
                       const uint8_t seed_quad_eval[32],
-                      const modified_quad_eval_params_t params)
+                      const rf_quad_eval_params_t params)
 {
-  modified_abdlop_params_srcptr quad_eval = params->quad_eval;
+  rf_abdlop_params_srcptr quad_eval = params->quad_eval;
   const unsigned int lambda = params->lambda;
   polyring_srcptr Rq = quad_eval->ring;
   int_srcptr q = polyring_get_mod (Rq);
@@ -377,8 +377,8 @@ _modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h,
 
   intmat_urandom (v, q, log2q, hash, 0);
 
-  STOPWATCH_START (stopwatch_modified_quad_eval_prove_compute_h,
-                   "modified_quad_eval_prove_compute_h");
+  STOPWATCH_START (stopwatch_rf_quad_eval_prove_compute_h,
+                   "rf_quad_eval_prove_compute_h");
 
   /* compute h */
 
@@ -451,7 +451,7 @@ _modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h,
           poly_addscale (hi, intmat_get_elem (v, 2 * i + 1, j), poly2, 0);
         }
     }
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_prove_compute_h);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_prove_compute_h);
 
   _schwartz_zippel_int_2 (R2i, r1i, NULL, Rprime2i, rprime1i, rprime0i, M, h, v,
                         params);
@@ -487,7 +487,7 @@ _modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h,
  * R2i is 2*(m1+l)+lambda x 2*(m1+l)+lambda
  */
 void
-modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
+rf_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
                      polyvec_t z1, polyvec_t z21, polyvec_t hint, polyvec_t randencs1,
                      polyvec_t m, polyvec_t s2, polyvec_t tA2, polymat_t A1,
                      polymat_t A2prime, polymat_t Bprime, spolymat_ptr R2i[],
@@ -495,7 +495,7 @@ modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
                      spolymat_ptr Rprime2i[], spolyvec_ptr rprime1i[],
                      poly_ptr rprime0i[], unsigned int M,
                      const uint8_t seed[32],
-                     const modified_quad_eval_params_t params)
+                     const rf_quad_eval_params_t params)
 {
 #if ASSERT == ASSERT_ENABLED
   abdlop_params_srcptr quad_eval = params->quad_eval;
@@ -506,7 +506,7 @@ modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
   const unsigned int kmsis = quad_eval->kmsis;
   unsigned int i;
 #endif
-  modified_abdlop_params_srcptr quad_many = params->quad_many;
+  rf_abdlop_params_srcptr quad_many = params->quad_many;
   const unsigned int lambda = params->lambda;
   const unsigned int N_ = lambda / 2;
   shake128_state_t hstate;
@@ -514,7 +514,7 @@ modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
   const uint8_t *seed_quad_eval = expseed;
   const uint8_t *seed_quad_many = expseed + 32;
 
-  STOPWATCH_START (stopwatch_modified_quad_eval_prove, "modified_quad_eval_prove");
+  STOPWATCH_START (stopwatch_rf_quad_eval_prove, "rf_quad_eval_prove");
 
   ASSERT_ERR (M > 0); /* use quad_many if no eval eq is needed. */
   ASSERT_ERR (lambda % 2 == 0);
@@ -566,22 +566,22 @@ modified_quad_eval_prove (uint8_t hash[32], polyvec_t tB, polyvec_t h, poly_t c,
   shake128_squeeze (hstate, expseed, sizeof (expseed));
   shake128_clear (hstate);
 
-  _modified_quad_eval_prove (hash, tB, h, randencs1, m, s2, Bprime, R2i, r1i, Rprime2i,
+  _rf_quad_eval_prove (hash, tB, h, randencs1, m, s2, Bprime, R2i, r1i, Rprime2i,
                         rprime1i, rprime0i, M, seed_quad_eval, params);
 
-  modified_quad_many_prove (hash, tB, c, z1, z21, hint, randencs1, m, s2, tA2, A1, A2prime,
+  rf_quad_many_prove (hash, tB, c, z1, z21, hint, randencs1, m, s2, tA2, A1, A2prime,
                        Bprime, R2i, r1i, N_ + N, seed_quad_many, quad_many);
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_prove);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_prove);
 }
 
 static int
-_modified_quad_eval_verify (uint8_t hash[32], polyvec_t h, polyvec_t tB,
+_rf_quad_eval_verify (uint8_t hash[32], polyvec_t h, polyvec_t tB,
                        spolymat_ptr R2i[], spolyvec_ptr r1i[], poly_ptr r0i[],
                        spolymat_ptr Rprime2i[], spolyvec_ptr rprime1i[],
                        poly_ptr rprime0i[], unsigned int M,
-                       const modified_quad_eval_params_t params)
+                       const rf_quad_eval_params_t params)
 {
-  modified_abdlop_params_srcptr quad_eval = params->quad_eval;
+  rf_abdlop_params_srcptr quad_eval = params->quad_eval;
   const unsigned int lambda = params->lambda;
   polyring_srcptr Rq = quad_eval->ring;
   int_srcptr q = polyring_get_mod (Rq);
@@ -645,13 +645,13 @@ ret:
 }
 
 int
-modified_quad_eval_verify (uint8_t hash[32], polyvec_t h, poly_t c, polyvec_t z1,
+rf_quad_eval_verify (uint8_t hash[32], polyvec_t h, poly_t c, polyvec_t z1,
                       polyvec_t z21, polyvec_t hint, polyvec_t tA1,
                       polyvec_t tB, polymat_t A1, polymat_t A2prime,
                       polymat_t Bprime, spolymat_ptr R2i[], spolyvec_ptr r1i[],
                       poly_ptr r0i[], unsigned int N, spolymat_ptr Rprime2i[],
                       spolyvec_ptr rprime1i[], poly_ptr rprime0i[],
-                      unsigned int M, const modified_quad_eval_params_t params)
+                      unsigned int M, const rf_quad_eval_params_t params)
 {
 #if ASSERT == ASSERT_ENABLED
   abdlop_params_srcptr quad_eval = params->quad_eval;
@@ -662,12 +662,12 @@ modified_quad_eval_verify (uint8_t hash[32], polyvec_t h, poly_t c, polyvec_t z1
   const unsigned int l = quad_eval->l;
   unsigned int i;
 #endif
-  modified_abdlop_params_srcptr quad_many = params->quad_many;
+  rf_abdlop_params_srcptr quad_many = params->quad_many;
   const unsigned int lambda = params->lambda;
   const unsigned int N_ = lambda / 2;
   int b;
 
-  STOPWATCH_START (stopwatch_modified_quad_eval_verify, "modified_quad_eval_verify");
+  STOPWATCH_START (stopwatch_rf_quad_eval_verify, "rf_quad_eval_verify");
 
   ASSERT_ERR (M > 0); /* for M=0 one may want to work with quad_many */
   ASSERT_ERR (lambda % 2 == 0);
@@ -708,18 +708,18 @@ modified_quad_eval_verify (uint8_t hash[32], polyvec_t h, poly_t c, polyvec_t z1
     }
 #endif
 
-  b = _modified_quad_eval_verify (hash, h, tB, R2i, r1i, r0i, Rprime2i, rprime1i,
+  b = _rf_quad_eval_verify (hash, h, tB, R2i, r1i, r0i, Rprime2i, rprime1i,
                              rprime0i, M, params);
   if (b != 1)
     goto ret;
  
-  b = modified_quad_many_verify (hash, c, z1, z21, hint, tA1, tB, A1, A2prime,
+  b = rf_quad_many_verify (hash, c, z1, z21, hint, tA1, tB, A1, A2prime,
                             Bprime, R2i, r1i, r0i, N + N_, quad_many);
   if (b != 1)
     goto ret;
 
   b = 1;
 ret:
-  STOPWATCH_STOP (stopwatch_modified_quad_eval_verify);
+  STOPWATCH_STOP (stopwatch_rf_quad_eval_verify);
   return b;
 }

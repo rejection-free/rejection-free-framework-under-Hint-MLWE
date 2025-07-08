@@ -1,6 +1,0 @@
-#include "encoding.c"
-#include "modified-abdlop.c"
-#include "modified-quad.c"
-#include "modified-quad-eval.c"
-#include "modified-quad-many.c"
-#include "tools.c"

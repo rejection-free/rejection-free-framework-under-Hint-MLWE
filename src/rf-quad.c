@@ -6,11 +6,11 @@
  * tB = (tB_,t, Bprime=(Bprime_,bextprime)
  */
 void
-modified_quad_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
+rf_quad_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
                 polyvec_t z21, polyvec_t h, polyvec_t randencs1, polyvec_t m,
                 polyvec_t s2, polyvec_t tA2, polymat_t A1, polymat_t A2prime,
                 polymat_t Bprime, spolymat_t R2, spolyvec_t r1,
-                const uint8_t seed[32], const modified_abdlop_params_t params)
+                const uint8_t seed[32], const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   const unsigned int kmsis = params->kmsis;
@@ -52,8 +52,8 @@ modified_quad_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
   uint8_t yseed[32]; /* mask seed */
   int rej = 1;
 
-  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_ENTRY, "%s", "modified_quad_prove begin");
-  STOPWATCH_START (stopwatch_modified_quad_prove, "modified_quad_prove");
+  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_ENTRY, "%s", "rf_quad_prove begin");
+  STOPWATCH_START (stopwatch_rf_quad_prove, "rf_quad_prove");
 
   ASSERT_ERR (lext == 1);
   ASSERT_ERR (spolymat_is_upperdiag (R2));
@@ -368,10 +368,10 @@ modified_quad_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
 }
 
 int
-modified_quad_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
+rf_quad_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
                  polyvec_t h, polyvec_t tA1, polyvec_t tB, polymat_t A1,
                  polymat_t A2prime, polymat_t Bprime, spolymat_t R2,
-                 spolyvec_t r1, poly_t r0, const modified_abdlop_params_t params)
+                 spolyvec_t r1, poly_t r0, const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   const unsigned int kmsis = params->kmsis;

@@ -6,7 +6,7 @@ static void
 _schwartz_zippel_poly_2 (spolymat_t R2, spolyvec_t r1, poly_t r0,
                        uint8_t hash[32], spolymat_ptr R2i[],
                        spolyvec_ptr r1i[], poly_ptr r0i[], unsigned int N,
-                       const modified_abdlop_params_t params)
+                       const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   int_srcptr q = polyring_get_mod (Rq);
@@ -75,12 +75,12 @@ _schwartz_zippel_poly_2 (spolymat_t R2, spolyvec_t r1, poly_t r0,
  * t must be a subvector of (tB,tBext).
  */
 void
-modified_quad_many_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
+rf_quad_many_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
                      polyvec_t z21, polyvec_t h, polyvec_t randencs1, polyvec_t m,
                      polyvec_t s2, polyvec_t tA2, polymat_t A1,
                      polymat_t A2prime, polymat_t Bprime, spolymat_ptr R2i[],
                      spolyvec_ptr r1i[], unsigned int N,
-                     const uint8_t seed[32], const modified_abdlop_params_t params)
+                     const uint8_t seed[32], const rf_abdlop_params_t params)
 {
 #if ASSERT == ASSERT_ENABLED
   unsigned int i;
@@ -92,8 +92,8 @@ modified_quad_many_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1
   spolymat_t R2;
   spolyvec_t r1;
 
-  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_ENTRY, "%s", "modified_quad_many_prove");
-  STOPWATCH_START (stopwatch_modified_quad_many_prove, "modified_quad_many_prove begin");
+  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_ENTRY, "%s", "rf_quad_many_prove");
+  STOPWATCH_START (stopwatch_rf_quad_many_prove, "rf_quad_many_prove begin");
 
   ASSERT_ERR (N > 0); /* use quad if only one quad eq is needed. */
   ASSERT_ERR (params->lext == 1);
@@ -140,22 +140,22 @@ modified_quad_many_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1
   _schwartz_zippel_poly_2 (R2, r1, NULL, hash, R2i, r1i, NULL, N, params);
 
   /* seed can be passed directly to quad sub-protocol since it is not used. */
-  modified_quad_prove (hash, tB, c, z1, z21, h, randencs1, m, s2, tA2, A1, A2prime, Bprime,
+  rf_quad_prove (hash, tB, c, z1, z21, h, randencs1, m, s2, tA2, A1, A2prime, Bprime,
                   R2, r1, seed, params);
 
   spolymat_free (R2);
   spolyvec_free (r1);
 
-  STOPWATCH_STOP (stopwatch_modified_quad_many_prove);
-  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_RETURN, "%s", "lnp_modified_many_prove end");
+  STOPWATCH_STOP (stopwatch_rf_quad_many_prove);
+  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_RETURN, "%s", "lnp_rf_many_prove end");
 }
 
 int
-modified_quad_many_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
+rf_quad_many_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
                       polyvec_t h, polyvec_t tA1, polyvec_t tB, polymat_t A1,
                       polymat_t A2prime, polymat_t Bprime, spolymat_ptr R2i[],
                       spolyvec_ptr r1i[], poly_ptr r0i[], unsigned int N,
-                      const modified_abdlop_params_t params)
+                      const rf_abdlop_params_t params)
 {
 #if ASSERT == ASSERT_ENABLED
   unsigned int i;
@@ -169,7 +169,7 @@ modified_quad_many_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z
   poly_t r0;
   int b;
 
-  STOPWATCH_START (stopwatch_modified_quad_many_verify, "modified_quad_many_verify");
+  STOPWATCH_START (stopwatch_rf_quad_many_verify, "rf_quad_many_verify");
 
   ASSERT_ERR (params->lext == 1);
   ASSERT_ERR (poly_get_ring (c) == Rq);
@@ -211,12 +211,12 @@ modified_quad_many_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z
 
   _schwartz_zippel_poly_2 (R2, r1, r0, hash, R2i, r1i, r0i, N, params);
 
-  b = modified_quad_verify (hash, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime, R2, r1, r0, params);
+  b = rf_quad_verify (hash, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime, R2, r1, r0, params);
 
   spolymat_free (R2); 
   spolyvec_free (r1);
   poly_free (r0);
 
-  STOPWATCH_STOP (stopwatch_modified_quad_many_verify);
+  STOPWATCH_STOP (stopwatch_rf_quad_many_verify);
   return b;
 }

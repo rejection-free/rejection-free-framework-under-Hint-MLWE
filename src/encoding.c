@@ -139,7 +139,7 @@ void randomized_encoding(polyvec_t output, polyvec_t input,  const uint8_t seed[
 /*
 Decoding function : TODO
 */
-// void decoding(polyvec_t output, polyvec_t input, const modified_abdlop_params_t params)
+// void decoding(polyvec_t output, polyvec_t input, const rf_abdlop_params_t params)
 // {
 //     polyring_srcptr rq = params->ring;
 //     int_srcptr b = params->base;

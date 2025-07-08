@@ -52,7 +52,7 @@ To build the list of parameters specified in the `params` subfolder, from the ba
 
 or specifically `make params-abdlop`, `make params-quad`, `make params-eval`.
 
-Keep in mind that this will overwrite the actual associated files `modified-__-__-params%.h` in the `tests` subdirectory.
+Keep in mind that this will overwrite the actual associated files `rf-__-__-params%.h` in the `tests` subdirectory.
 
 To build the C list of tests, from the base directory, run:
 
@@ -93,7 +93,7 @@ Parameters
 ----------
 
 We provide in the `params` subfolder our 5 sets of parameters. In the `tests` subfolder, you will have the entire list 
-of parameters `modified-_-_-params%.h` for each possible instance of our framework. 
+of parameters `rf-_-_-params%.h` for each possible instance of our framework. 
 
 Using the `scripts` files, the user can manually generate the complete list of concrete parameters associated with these inputs for different uses: 
 - an instance of the commitment scheme for the 5 parameters sets,

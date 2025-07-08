@@ -1,17 +1,17 @@
 #include "lazer.h"
-#include "modified-quad-eval-params1.h"
-#include "modified-quad-eval-params2.h"
-#include "modified-quad-eval-params3.h"
-#include "modified-quad-eval-params4.h"
-#include "modified-quad-eval-params5.h"
+#include "rf-quad-eval-params1.h"
+#include "rf-quad-eval-params2.h"
+#include "rf-quad-eval-params3.h"
+#include "rf-quad-eval-params4.h"
+#include "rf-quad-eval-params5.h"
 #include "test.h"
 #include <mpfr.h>
 
 #define N 3 /* number of quadratic equations */
 #define M 3 /* number of quadratic eval equations */
 
-static void test_modified_quad_eval (uint8_t seed[32],
-                                const modified_quad_eval_params_t params);
+static void test_rf_quad_eval (uint8_t seed[32],
+                                const rf_quad_eval_params_t params);
 
 int
 main (void)
@@ -24,35 +24,35 @@ main (void)
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad_eval (seed, modif_eval_params1);
+      test_rf_quad_eval (seed, modif_eval_params1);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad_eval (seed, modif_eval_params2);
+      test_rf_quad_eval (seed, modif_eval_params2);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad_eval (seed, modif_eval_params3);
+      test_rf_quad_eval (seed, modif_eval_params3);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad_eval (seed, modif_eval_params4);
+      test_rf_quad_eval (seed, modif_eval_params4);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad_eval (seed, modif_eval_params5);
+      test_rf_quad_eval (seed, modif_eval_params5);
     }
   TEST_PASS ();
 }
 
 static void
-test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t params)
+test_rf_quad_eval (uint8_t seed[32], const rf_quad_eval_params_t params)
 {
-  modified_abdlop_params_srcptr abdlop = params->quad_eval;
+  rf_abdlop_params_srcptr abdlop = params->quad_eval;
   uint8_t hashp[32] = { 0 };
   uint8_t hashv[32] = { 0 };
   polyring_srcptr Rq = abdlop->ring;
@@ -237,20 +237,20 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
 
   /* generate public parameters */
 
-  modified_abdlop_keygen (A1, A2prime, Bprime, seed, abdlop);
+  rf_abdlop_keygen (A1, A2prime, Bprime, seed, abdlop);
 
   /* generate proof */
 
   memset (hashp, 0xff, 32);
-  modified_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, abdlop);
-  modified_quad_eval_prove (hashp, tB, h, c, z1, z21, hint, randencs1, m, s2, tA2, A1,
+  rf_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, abdlop);
+  rf_quad_eval_prove (hashp, tB, h, c, z1, z21, hint, randencs1, m, s2, tA2, A1,
                        A2prime, Bprime, R2, r1, N, Rprime2, rprime1, rprime0,
                        M, seed, params);
 
   /* expect successful verification */
 
   memset (hashv, 0xff, 32);
-  b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1, A2prime,
+  b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1, A2prime,
                             Bprime, R2, r1, r0, N, Rprime2, rprime1, rprime0,
                             M, params);
   TEST_EXPECT (memcmp (hashp, hashv, 32) == 0);
@@ -263,7 +263,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       bytes_urandom (buf, sizeof (buf));
       memset (hashv, 0xff, 32);
       hashv[buf[0] % 32] ^= (1 << (buf[1] % 8));
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -271,7 +271,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polyvec_brandom (herr, 1, seed, dom++);
       polyvec_add (herr, herr, h, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, herr, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, herr, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -279,7 +279,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       poly_brandom (cerr, 1, seed, dom++);
       poly_add (cerr, cerr, c, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, cerr, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, cerr, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -287,7 +287,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polyvec_brandom (z1err, 1, seed, dom++);
       polyvec_add (z1err, z1err, z1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1err, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1err, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -295,7 +295,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polyvec_brandom (z21err, 1, seed, dom++);
       polyvec_add (z21err, z21err, z21, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21err, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21err, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -303,7 +303,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polyvec_brandom (hinterr, 1, seed, dom++);
       polyvec_add (hinterr, hinterr, hint, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hinterr, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hinterr, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -311,7 +311,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polyvec_brandom (tA1err, 1, seed, dom++);
       polyvec_add (tA1err, tA1err, tA1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1err, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1err, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -321,7 +321,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
           polyvec_brandom (tBerr, 1, seed, dom++);
           polyvec_add (tBerr, tBerr, tB, 0);
           memset (hashv, 0xff, 32);
-          b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tBerr, A1,
+          b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tBerr, A1,
                                     A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                     rprime1, rprime0, M, params);
           TEST_EXPECT (b == 0);
@@ -330,7 +330,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polymat_brandom (A1err, 1, seed, dom++);
       polymat_add (A1err, A1err, A1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1err,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1err,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -338,7 +338,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polymat_urandom (A2primeerr, Rq->q, Rq->log2q, seed, dom++);
       polymat_add (A2primeerr, A2primeerr, A2prime, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2primeerr, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -346,7 +346,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       polymat_brandom (Bprimeerr, 1, seed, dom++);
       polymat_add (Bprimeerr, Bprimeerr, Bprime, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprimeerr, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 0);
@@ -355,7 +355,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       spolymat_add (R2err_, R2[0], R2err, 0);
       R2[N_] = R2err_;
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       R2[N_] = R2i[N_];
@@ -365,7 +365,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       spolyvec_add (r1err_, r1[1], r1err, 0);
       r1[N_ + 1] = r1err_;
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       r1[N_ + 1] = r1i[N_ + 1];
@@ -374,7 +374,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       poly_brandom (r0err, 1, seed, dom++);
       poly_add (r0[N_ + 2], r0[N_ + 2], r0err, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       poly_sub (r0[N_ + 2], r0[N_ + 2], r0err, 0);
@@ -384,7 +384,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       spolymat_add (Rprime2err_, Rprime2[1], Rprime2err, 0);
       Rprime2[1] = Rprime2err_;
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       Rprime2[1] = Rprime2i[1];
@@ -394,7 +394,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       spolyvec_add (rprime1err_, rprime1[1], rprime1err, 0);
       rprime1[1] = rprime1err_;
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       rprime1[1] = rprime1i[1];
@@ -403,7 +403,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       poly_brandom (rprime0err, 1, seed, dom++);
       poly_add (rprime0[2], rprime0[2], rprime0err, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       poly_sub (rprime0[2], rprime0[2], rprime0err, 0);
@@ -412,7 +412,7 @@ test_modified_quad_eval (uint8_t seed[32], const modified_quad_eval_params_t par
       /* expect successful verification */
 
       memset (hashv, 0xff, 32);
-      b = modified_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
+      b = rf_quad_eval_verify (hashv, h, c, z1, z21, hint, tA1, tB, A1,
                                 A2prime, Bprime, R2, r1, r0, N, Rprime2,
                                 rprime1, rprime0, M, params);
       TEST_EXPECT (b == 1);

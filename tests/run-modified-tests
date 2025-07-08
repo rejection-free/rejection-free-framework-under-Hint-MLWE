@@ -3,10 +3,10 @@ import subprocess
 from subprocess import PIPE
 
 tests = [
-    'modified-abdlop-test',
-    'modified-quad-test',
-    'modified-quad-many-test',
-    'modified-quad-eval-test',
+    'rf-abdlop-test',
+    'rf-quad-test',
+    'rf-quad-many-test',
+    'rf-quad-eval-test',
 ]
 
 # automake test exit status

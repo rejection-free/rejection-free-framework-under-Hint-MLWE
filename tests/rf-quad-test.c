@@ -1,12 +1,12 @@
 #include "lazer.h"
-#include "modified-quad-params1.h"
-#include "modified-quad-params2.h"
-#include "modified-quad-params3.h"
-#include "modified-quad-params4.h"
-#include "modified-quad-params5.h"
+#include "rf-quad-params1.h"
+#include "rf-quad-params2.h"
+#include "rf-quad-params3.h"
+#include "rf-quad-params4.h"
+#include "rf-quad-params5.h"
 #include "test.h"
 
-static void test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params);
+static void test_rf_quad (uint8_t seed[32], const rf_abdlop_params_t params);
 
 int
 main (void)
@@ -20,33 +20,33 @@ main (void)
   for (i = 0; i < nexec; i++) 
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad (seed, modif_params1);
+      test_rf_quad (seed, modif_params1);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad (seed, modif_params2);
+      test_rf_quad (seed, modif_params2);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad (seed, modif_params3);
+      test_rf_quad (seed, modif_params3);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad (seed, modif_params4);
+      test_rf_quad (seed, modif_params4);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_modified_quad (seed, modif_params5);
+      test_rf_quad (seed, modif_params5);
     }
   TEST_PASS ();
 }
 
 static void
-test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
+test_rf_quad (uint8_t seed[32], const rf_abdlop_params_t params)
 {
   uint8_t hashp[32] = { 0 };
   uint8_t hashv[32] = { 0 };
@@ -152,16 +152,16 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
   poly_neg_self (r0);
   /* generate public parameters */
 
-  modified_abdlop_keygen (A1, A2prime, Bprime, seed, params);
+  rf_abdlop_keygen (A1, A2prime, Bprime, seed, params);
   
   /* generate proof */
 
   memset (hashp, 0xff, 32);
-  modified_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, params);
-  modified_quad_prove (hashp, tB, c, z1, z21, h, randencs1, m, s2, tA2, A1, A2prime, Bprime, R2, r1, seed, params);
+  rf_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, params);
+  rf_quad_prove (hashp, tB, c, z1, z21, h, randencs1, m, s2, tA2, A1, A2prime, Bprime, R2, r1, seed, params);
   /* expect successful verification */
   memset (hashv, 0xff, 32);
-  b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime, R2, r1, r0, params);
+  b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime, R2, r1, r0, params);
   TEST_EXPECT (b == 1);
   TEST_EXPECT (memcmp (hashp, hashv, 32) == 0);
 
@@ -172,35 +172,35 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
       bytes_urandom (buf, sizeof (buf));
       memset (hashv, 0xff, 32);
       hashv[buf[0] % 32] ^= (1 << (buf[1] % 8));
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
                            R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
       polyvec_brandom (z1err, 1, seed, dom++);
       polyvec_add (z1err, z1err, z1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1err, z21, h, tA1, tB, A1, A2prime,
+      b = rf_quad_verify (hashv, c, z1err, z21, h, tA1, tB, A1, A2prime,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
       polyvec_brandom (z21err, 1, seed, dom++);
       polyvec_add (z21err, z21err, z21, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21err, h, tA1, tB, A1, A2prime,
+      b = rf_quad_verify (hashv, c, z1, z21err, h, tA1, tB, A1, A2prime,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
       polyvec_brandom (herr, 1, seed, dom++);
       polyvec_add (herr, herr, h, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, herr, tA1, tB, A1, A2prime,
+      b = rf_quad_verify (hashv, c, z1, z21, herr, tA1, tB, A1, A2prime,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
       polyvec_brandom (tA1err, 1, seed, dom++);
       polyvec_add (tA1err, tA1err, tA1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1err, tB, A1, A2prime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1err, tB, A1, A2prime,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
@@ -209,7 +209,7 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
           polyvec_brandom (tBerr, 1, seed, dom++);
           polyvec_add (tBerr, tBerr, tB, 0);
           memset (hashv, 0xff, 32);
-          b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tBerr, A1, A2prime,
+          b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tBerr, A1, A2prime,
                                Bprime, R2, r1, r0, params);
           TEST_EXPECT (b == 0);
         }
@@ -217,14 +217,14 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
       polymat_brandom (A1err, 1, seed, dom++);
       polymat_add (A1err, A1err, A1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1err, A2prime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1err, A2prime,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
       polymat_urandom (A2primeerr, Rq->q, Rq->log2q, seed, dom++);
       polymat_add (A2primeerr, A2primeerr, A2prime, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2primeerr,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2primeerr,
                            Bprime, R2, r1, r0, params);
       TEST_EXPECT (b == 0);
 
@@ -233,7 +233,7 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
           polymat_brandom (Bprimeerr, 1, seed, dom++);
           polymat_add (Bprimeerr, Bprimeerr, Bprime, 0);
           memset (hashv, 0xff, 32);
-          b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime,
+          b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime,
                                Bprimeerr, R2, r1, r0, params);
           TEST_EXPECT (b == 0);
         }
@@ -242,7 +242,7 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
       spolymat_set_empty (R2err_);
       spolymat_add (R2err_, R2err, R2, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
                            R2err_, r1, r0, params);
       TEST_EXPECT (b == 0);
 
@@ -250,21 +250,21 @@ test_modified_quad (uint8_t seed[32], const modified_abdlop_params_t params)
       spolyvec_set_empty (r1err_);
       spolyvec_add (r1err_, r1err, r1, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
                            R2, r1err_, r0, params);
       TEST_EXPECT (b == 0);
 
       poly_brandom (r0err, 1, seed, dom++);
       poly_add (r0err, r0err, r0, 0);
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
                            R2, r1, r0err, params);
       TEST_EXPECT (b == 0);
 
       /* expect successful verification */
 
       memset (hashv, 0xff, 32);
-      b = modified_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
+      b = rf_quad_verify (hashv, c, z1, z21, h, tA1, tB, A1, A2prime, Bprime,
                            R2, r1, r0, params);
       TEST_EXPECT (b == 1);
       TEST_EXPECT (memcmp (hashp, hashv, 32) == 0);

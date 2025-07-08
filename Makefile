@@ -79,23 +79,23 @@ LAZER_SRC = \
  $(LAZER_DIR)/src/urandom.c \
  $(LAZER_DIR)/src/version.c \
 
-#### lib modified-lazer
+#### lib rf-lazer
 LIB_DIR = src
 
 LIBSOURCES = \
  $(LIB_DIR)/lazer.c \
  $(LIB_DIR)/tools.c \
  $(LIB_DIR)/encoding.c \
- $(LIB_DIR)/modified-abdlop.c \
- $(LIB_DIR)/modified-quad.c \
- $(LIB_DIR)/modified-quad-eval.c \
- $(LIB_DIR)/modified-quad-many.c \
+ $(LIB_DIR)/rf-abdlop.c \
+ $(LIB_DIR)/rf-quad.c \
+ $(LIB_DIR)/rf-quad-eval.c \
+ $(LIB_DIR)/rf-quad-many.c \
 
 TESTS = \
- tests/modified-abdlop-test \
- tests/modified-quad-test \
- tests/modified-quad-eval-test \
- tests/modified-quad-many-test
+ tests/rf-abdlop-test \
+ tests/rf-quad-test \
+ tests/rf-quad-eval-test \
+ tests/rf-quad-many-test
 
 
 .PHONY: lib lib-all lib-static lib-shared lib-static-all lib-shared-all
@@ -126,9 +126,9 @@ src/hexl_shared.o: $(LAZER_DIR)/src/hexl.h $(HEXL_DIR)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) -I$(LAZER_DIR) -I$(LAZER_DIR)/src -I$(HEXL_DIR)/hexl/include -c -fPIC -o src/hexl_shared.o $(LAZER_DIR)/src/hexl.cpp
 
 src/lazer.c:
-	{ head -n33 $(LAZER_DIR)/src/lazer.c; cat src/lazer-modified.c; tail -n+34 $(LAZER_DIR)/src/lazer.c; } | sed 's/blindsig.c/stopwatch.h/' > src/lazer.c
+	{ head -n33 $(LAZER_DIR)/src/lazer.c; cat src/lazer-rf.c; tail -n+34 $(LAZER_DIR)/src/lazer.c; } | sed 's/blindsig.c/stopwatch.h/' > src/lazer.c
 
-lazer.h: $(LAZER_DIR)/src/lazer-in1.h $(LAZER_DIR)/src/lazer-in2.h src/lazer-modified.h $(LAZER_DIR)/src/moduli.h $(LAZER_DIR)/config.h
+lazer.h: $(LAZER_DIR)/src/lazer-in1.h $(LAZER_DIR)/src/lazer-in2.h src/lazer-rf.h $(LAZER_DIR)/src/moduli.h $(LAZER_DIR)/config.h
 	cat $(LAZER_DIR)/src/lazer-in1.h > tmp.h
 	echo "" >> tmp.h
 
@@ -146,7 +146,7 @@ lazer.h: $(LAZER_DIR)/src/lazer-in1.h $(LAZER_DIR)/src/lazer-in2.h src/lazer-mod
 
 	echo "" >> lazer.h
 
-	cat src/lazer-modified.h >> lazer.h
+	cat src/lazer-rf.h >> lazer.h
 	echo "" >> lazer.h
 	
 	cat lazer/src/moduli.h >> lazer.h	
@@ -173,7 +173,7 @@ params-many: params-setup
 
 .PHONY: check
 check: $(TESTS)
-	cd tests && ./run-modified-tests
+	cd tests && ./run-rf-tests
 
 tests/test.o: $(LAZER_DIR)/tests/test.c $(LAZER_DIR)/tests/test.h lazer.h liblazer.a
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(LAZER_DIR) -I. -c -o $@ $<
@@ -181,22 +181,22 @@ tests/test.o: $(LAZER_DIR)/tests/test.c $(LAZER_DIR)/tests/test.h lazer.h liblaz
 tests/lazer-test: $(LAZER_DIR)/tests/lazer-test.c $(TESTDEPS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(LAZER_DIR) -I. -o $@ $< $(TESTLIBS)
 
-tests/modified-abdlop-test: tests/modified-abdlop-test.c $(TESTDEPS) tests/modified-abdlop-params1.h tests/modified-abdlop-params2.h tests/modified-abdlop-params3.h tests/modified-abdlop-params4.h tests/modified-abdlop-params5.h
+tests/rf-abdlop-test: tests/rf-abdlop-test.c $(TESTDEPS) tests/rf-abdlop-params1.h tests/rf-abdlop-params2.h tests/rf-abdlop-params3.h tests/rf-abdlop-params4.h tests/rf-abdlop-params5.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(LAZER_DIR) -I$(LAZER_DIR)/tests -o $@ $< $(TESTLIBS)
 
-tests/modified-quad-test: tests/modified-quad-test.c $(TESTDEPS) tests/modified-quad-params1.h tests/modified-quad-params2.h tests/modified-quad-params3.h tests/modified-quad-params4.h tests/modified-quad-params5.h
+tests/rf-quad-test: tests/rf-quad-test.c $(TESTDEPS) tests/rf-quad-params1.h tests/rf-quad-params2.h tests/rf-quad-params3.h tests/rf-quad-params4.h tests/rf-quad-params5.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(LAZER_DIR) -I$(LAZER_DIR)/tests -o $@ $< $(TESTLIBS)
 
-tests/modified-quad-eval-test: tests/modified-quad-eval-test.c $(TESTDEPS) tests/modified-quad-eval-params1.h tests/modified-quad-eval-params2.h
+tests/rf-quad-eval-test: tests/rf-quad-eval-test.c $(TESTDEPS) tests/rf-quad-eval-params1.h tests/rf-quad-eval-params2.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(LAZER_DIR) -I$(LAZER_DIR)/tests -o $@ $< $(TESTLIBS)
 
-tests/modified-quad-many-test: tests/modified-quad-many-test.c $(TESTDEPS) tests/modified-quad-params1.h tests/modified-quad-params2.h tests/modified-quad-params3.h tests/modified-quad-params4.h tests/modified-quad-params5.h
+tests/rf-quad-many-test: tests/rf-quad-many-test.c $(TESTDEPS) tests/rf-quad-params1.h tests/rf-quad-params2.h tests/rf-quad-params3.h tests/rf-quad-params4.h tests/rf-quad-params5.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(LAZER_DIR) -I$(LAZER_DIR)/tests -o $@ $< $(TESTLIBS)
 
 .PHONY: clean
 clean:
 	rm -f lazer.h src/lazer.c liblazer.a liblazer.so 
-	cd scripts && rm -f moduli.sage.py modified-abdlop-codegen.sage.py modified-quad-codegen.sage.py modified-quad-eval-codegen.sage.py
+	cd scripts && rm -f moduli.sage.py rf-abdlop-codegen.sage.py rf-quad-codegen.sage.py rf-quad-eval-codegen.sage.py
 	cd src && rm -f *.o
 	cd lazer && $(MAKE) clean
 	cd $(THIRD_PARTY_DIR) && rm -rf $(HEXL_SUBDIR)

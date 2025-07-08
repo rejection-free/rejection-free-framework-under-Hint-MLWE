@@ -26,8 +26,8 @@
  */
 
 void
-modified_abdlop_keygen (polymat_t A1, polymat_t A2prime, polymat_t Bprime,
-               const uint8_t seed[32], const modified_abdlop_params_t params)
+rf_abdlop_keygen (polymat_t A1, polymat_t A2prime, polymat_t Bprime,
+               const uint8_t seed[32], const rf_abdlop_params_t params)
 {
   #if ASSERT == ASSERT_ENABLED
     const unsigned int kmsis = params->kmsis;
@@ -86,9 +86,9 @@ modified_abdlop_keygen (polymat_t A1, polymat_t A2prime, polymat_t Bprime,
  */
 
 void
-modified_abdlop_commit (polyvec_t tA1, polyvec_t tA2, polyvec_t tB, polyvec_t s1, polyvec_t rand_enc_s1,
+rf_abdlop_commit (polyvec_t tA1, polyvec_t tA2, polyvec_t tB, polyvec_t s1, polyvec_t rand_enc_s1,
                polyvec_t m, polyvec_t s2, polymat_t A1, polymat_t A2prime,
-               polymat_t Bprime, const uint8_t seed[32], const modified_abdlop_params_t params)
+               polymat_t Bprime, const uint8_t seed[32], const rf_abdlop_params_t params)
 {
   #if ASSERT == ASSERT_ENABLED
     const unsigned int lext = params->lext;
@@ -158,8 +158,8 @@ modified_abdlop_commit (polyvec_t tA1, polyvec_t tA2, polyvec_t tB, polyvec_t s1
 Encoding commitment
 */
 void
-modified_abdlop_enccomm (uint8_t *buf, size_t *buflen, polyvec_t tA1, polyvec_t tB,
-                const modified_abdlop_params_t params)
+rf_abdlop_enccomm (uint8_t *buf, size_t *buflen, polyvec_t tA1, polyvec_t tB,
+                const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   int_srcptr q = Rq->q;
@@ -216,8 +216,8 @@ modified_abdlop_enccomm (uint8_t *buf, size_t *buflen, polyvec_t tA1, polyvec_t 
  * used by abdlop_keygen.
  */
 void 
-modified_abdlop_hashcomm (uint8_t hash[32], polyvec_t tA1, polyvec_t tB,
-                 const modified_abdlop_params_t params)
+rf_abdlop_hashcomm (uint8_t hash[32], polyvec_t tA1, polyvec_t tB,
+                 const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   const unsigned int log2q = Rq->log2q;
@@ -229,7 +229,7 @@ modified_abdlop_hashcomm (uint8_t hash[32], polyvec_t tA1, polyvec_t tB,
   const size_t outlen = CEIL (kmsis * d * (log2q - D) + l * d * log2q, 8) + 1;
   uint8_t out[outlen];
 
-  modified_abdlop_enccomm (out, NULL, tA1, tB, params);
+  rf_abdlop_enccomm (out, NULL, tA1, tB, params);
 
   shake128_init (hstate);
   shake128_absorb (hstate, hash, 32);
@@ -256,10 +256,10 @@ modified_abdlop_hashcomm (uint8_t hash[32], polyvec_t tA1, polyvec_t tB,
  * h hint in Rq^(kmsis),
  */
 void
-modified_abdlop_prove (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
+rf_abdlop_prove (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
               polyvec_t h, polyvec_t tA2, polyvec_t rand_enc_s1, polyvec_t s2,
               polymat_t A1, polymat_t A2prime, const uint8_t seed[32],
-              const modified_abdlop_params_t params)
+              const rf_abdlop_params_t params)
 {
   polyring_srcptr Rq = params->ring;
   const unsigned int kmsis = params->kmsis;
@@ -431,9 +431,9 @@ modified_abdlop_prove (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
  */
 
 int
-modified_abdlop_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
+rf_abdlop_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
                polyvec_t h, polyvec_t tA1, polymat_t A1, polymat_t A2prime,
-               const modified_abdlop_params_t params)
+               const rf_abdlop_params_t params)
 {
   #if ASSERT == ASSERT_ENABLED
     const unsigned int m1 = params->m1;

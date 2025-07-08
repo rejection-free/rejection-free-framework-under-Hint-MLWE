@@ -1,12 +1,12 @@
 #include "lazer.h"
-#include "modified-abdlop-params1.h"
-#include "modified-abdlop-params2.h"
-#include "modified-abdlop-params3.h"
-#include "modified-abdlop-params4.h"
-#include "modified-abdlop-params5.h"
+#include "rf-abdlop-params1.h"
+#include "rf-abdlop-params2.h"
+#include "rf-abdlop-params3.h"
+#include "rf-abdlop-params4.h"
+#include "rf-abdlop-params5.h"
 #include "test.h"
 
-static void test_mabdlop (uint8_t seed[32], const modified_abdlop_params_t params);
+static void test_mabdlop (uint8_t seed[32], const rf_abdlop_params_t params);
 
 int
 main (void)
@@ -48,7 +48,7 @@ main (void)
 }
 
 void
-test_mabdlop(uint8_t seed[32], const modified_abdlop_params_t params){
+test_mabdlop(uint8_t seed[32], const rf_abdlop_params_t params){
   uint8_t hashp[32] = { 0 };
   uint8_t hashv[32] = { 0 };
   uint8_t hashcomm[32] = { 0 };
@@ -99,66 +99,66 @@ test_mabdlop(uint8_t seed[32], const modified_abdlop_params_t params){
     polyvec_urandom (m, Rq->q, Rq->log2q, seed, dom++);
 
   /* generate public parameters */
-  modified_abdlop_keygen (A1, A2prime, Bprime, seed, params);
+  rf_abdlop_keygen (A1, A2prime, Bprime, seed, params);
   memcpy (hashp, seed, 32);
   
-  modified_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, params);
-  modified_abdlop_hashcomm (hashp, tA1, tB, params);
-  modified_abdlop_prove (hashp, c, z1, z21, h, tA2, randencs1, s2, A1, A2prime, seed, params);
+  rf_abdlop_commit (tA1, tA2, tB, s1, randencs1, m, s2, A1, A2prime, Bprime, seed, params);
+  rf_abdlop_hashcomm (hashp, tA1, tB, params);
+  rf_abdlop_prove (hashp, c, z1, z21, h, tA2, randencs1, s2, A1, A2prime, seed, params);
   /* expect successful verification */
   
   memcpy (hashv, seed, 32);
-  modified_abdlop_hashcomm (hashv, tA1, tB, params);
-  validity = modified_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2prime, params);
+  rf_abdlop_hashcomm (hashv, tA1, tB, params);
+  validity = rf_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2prime, params);
   TEST_EXPECT (validity == 1);
   TEST_EXPECT (memcmp (hashp, hashv, 32) == 0);
 
   memcpy (hashcomm, seed, 32);
-  modified_abdlop_hashcomm (hashcomm, tA1, tB, params);
+  rf_abdlop_hashcomm (hashcomm, tA1, tB, params);
   for (i = 0; i < 1; i++)
     {
       /* expect verification failures */
       bytes_urandom (buf, sizeof (buf));
       memcpy (hashv, hashcomm, 32);
       hashv[buf[0] % 32] ^= (1 << (buf[1] % 8));
-      validity = modified_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2prime, params);
       TEST_EXPECT (validity == 0);
      
 
       polyvec_brandom (z1err, 1, seed, dom++);
       polyvec_add (z1err, z1err, z1, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1err, z21, h, tA1, A1, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1err, z21, h, tA1, A1, A2prime, params);
       TEST_EXPECT (validity == 0);
       
       polyvec_brandom (z21err, 1, seed, dom++);
       polyvec_add (z21err, z21err, z21, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1, z21err, h, tA1, A1, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21err, h, tA1, A1, A2prime, params);
       TEST_EXPECT (validity == 0);
       
       polyvec_brandom (herr, 1, seed, dom++);
       polyvec_add (herr, herr, h, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1, z21, herr, tA1, A1, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21, herr, tA1, A1, A2prime, params);
       TEST_EXPECT (validity == 0);
       
       polyvec_brandom (tA1err, 1, seed, dom++); /* sometimes fails XXX */
       polyvec_add (tA1err, tA1err, tA1, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1, z21, h, tA1err, A1, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21, h, tA1err, A1, A2prime, params);
       TEST_EXPECT (validity == 0);
       
       polymat_urandom (A1err, Rq->q, Rq->log2q, seed, dom++);
       polymat_add (A1err, A1err, A1, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1, z21, h, tA1, A1err, A2prime, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21, h, tA1, A1err, A2prime, params);
       TEST_EXPECT (validity == 0);
       
       polymat_urandom (A2primeerr, Rq->q, Rq->log2q, seed, dom++);
       polymat_add (A2primeerr, A2primeerr, A2prime, 0);
       memcpy (hashv, hashcomm, 32);
-      validity = modified_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2primeerr, params);
+      validity = rf_abdlop_verify (hashv, c, z1, z21, h, tA1, A1, A2primeerr, params);
       TEST_EXPECT (validity == 0);
     }
   poly_free (c);

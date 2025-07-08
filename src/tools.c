@@ -286,70 +286,70 @@ void spolymat_set_block_matrix (spolymat_ptr r, spolymat_ptr a1, spolymat_ptr a2
 }
 
 /* stopwatch.c */
-STOPWATCH_T (stopwatch_modified_quad_many_prove);
-STOPWATCH_T (stopwatch_modified_quad_many_verify);
+STOPWATCH_T (stopwatch_rf_quad_many_prove);
+STOPWATCH_T (stopwatch_rf_quad_many_verify);
 
-STOPWATCH_T (stopwatch_modified_quad_prove);
-STOPWATCH_T (stopwatch_modified_quad_verify);
+STOPWATCH_T (stopwatch_rf_quad_prove);
+STOPWATCH_T (stopwatch_rf_quad_verify);
 
-STOPWATCH_T (stopwatch_modified_quad_eval_prove);
-STOPWATCH_T (stopwatch_modified_quad_eval_prove_compute_h);
-STOPWATCH_T (stopwatch_modified_quad_eval_verify);
-STOPWATCH_T (stopwatch_modified_quad_eval_schwartz_zippel_quad);
-STOPWATCH_T (stopwatch_modified_quad_eval_schwartz_zippel_lin);
-STOPWATCH_T (stopwatch_modified_quad_eval_schwartz_zippel_const);
+STOPWATCH_T (stopwatch_rf_quad_eval_prove);
+STOPWATCH_T (stopwatch_rf_quad_eval_prove_compute_h);
+STOPWATCH_T (stopwatch_rf_quad_eval_verify);
+STOPWATCH_T (stopwatch_rf_quad_eval_schwartz_zippel_quad);
+STOPWATCH_T (stopwatch_rf_quad_eval_schwartz_zippel_lin);
+STOPWATCH_T (stopwatch_rf_quad_eval_schwartz_zippel_const);
 
 void
-print_stopwatch_modified_quad_many_prove (unsigned int indent)
+print_stopwatch_rf_quad_many_prove (unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_many_prove, STOPWATCH_MSEC, indent);
-  print_stopwatch_modified_quad_prove (indent + INCINDENT);
+  STOPWATCH_PRINT (stopwatch_rf_quad_many_prove, STOPWATCH_MSEC, indent);
+  print_stopwatch_rf_quad_prove (indent + INCINDENT);
 }
 
 void
-print_stopwatch_modified_quad_many_verify (unsigned int indent)
+print_stopwatch_rf_quad_many_verify (unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_many_verify, STOPWATCH_MSEC, indent);
-  print_stopwatch_modified_quad_verify (indent + INCINDENT);
+  STOPWATCH_PRINT (stopwatch_rf_quad_many_verify, STOPWATCH_MSEC, indent);
+  print_stopwatch_rf_quad_verify (indent + INCINDENT);
 }
 
 void
-print_stopwatch_modified_quad_prove (UNUSED unsigned int indent)
+print_stopwatch_rf_quad_prove (UNUSED unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_prove, STOPWATCH_MSEC, indent);
+  STOPWATCH_PRINT (stopwatch_rf_quad_prove, STOPWATCH_MSEC, indent);
 }
 
 void
-print_stopwatch_modified_quad_verify (UNUSED unsigned int indent)
+print_stopwatch_rf_quad_verify (UNUSED unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_verify, STOPWATCH_MSEC, indent);
+  STOPWATCH_PRINT (stopwatch_rf_quad_verify, STOPWATCH_MSEC, indent);
 }
 
 void
-print_stopwatch_modified_quad_eval_prove (unsigned int indent)
+print_stopwatch_rf_quad_eval_prove (unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_prove, STOPWATCH_MSEC, indent);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_prove_compute_h, STOPWATCH_MSEC,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_prove, STOPWATCH_MSEC, indent);
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_prove_compute_h, STOPWATCH_MSEC,
                    indent + INCINDENT);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_quad,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_quad,
                    STOPWATCH_MSEC, indent + INCINDENT);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_lin, STOPWATCH_MSEC,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_lin, STOPWATCH_MSEC,
                    indent + INCINDENT);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_const,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_const,
                    STOPWATCH_MSEC, indent + INCINDENT);
-  print_stopwatch_modified_quad_many_prove (indent + INCINDENT);
+  print_stopwatch_rf_quad_many_prove (indent + INCINDENT);
 }
 
 
 void
-print_stopwatch_modified_quad_eval_verify (unsigned int indent)
+print_stopwatch_rf_quad_eval_verify (unsigned int indent)
 {
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_verify, STOPWATCH_MSEC, indent);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_quad,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_verify, STOPWATCH_MSEC, indent);
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_quad,
                    STOPWATCH_MSEC, indent + INCINDENT);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_lin, STOPWATCH_MSEC,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_lin, STOPWATCH_MSEC,
                    indent + INCINDENT);
-  STOPWATCH_PRINT (stopwatch_modified_quad_eval_schwartz_zippel_const,
+  STOPWATCH_PRINT (stopwatch_rf_quad_eval_schwartz_zippel_const,
                    STOPWATCH_MSEC, indent + INCINDENT);
-  print_stopwatch_modified_quad_many_verify (indent + INCINDENT);
+  print_stopwatch_rf_quad_many_verify (indent + INCINDENT);
 }
