@@ -363,8 +363,8 @@ rf_quad_prove (uint8_t hash[32], polyvec_t tB, poly_t c, polyvec_t z1,
   spolyvec_free (r1_s);
   spolyvec_free (r1_m);
 
-  STOPWATCH_STOP (stopwatch_lnp_quad_prove);
-  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_RETURN, "%s", "lnp_quad_prove end");
+  STOPWATCH_STOP (stopwatch_rf_quad_prove);
+  DEBUG_PRINTF (DEBUG_PRINT_FUNCTION_RETURN, "%s", "rf_quad_prove end");
 }
 
 int
@@ -406,7 +406,7 @@ rf_quad_verify (uint8_t hash[32], poly_t c, polyvec_t z1, polyvec_t z21,
   uint8_t cseed[32];
   int skip, accept = 0;
 
-  STOPWATCH_START (stopwatch_lnp_quad_verify, "lnp_quad_verify");
+  STOPWATCH_START (stopwatch_rf_quad_verify, "rf_quad_verify");
 
   ASSERT_ERR (lext == 1);
   ASSERT_ERR (poly_get_ring (c) == Rq);
@@ -604,6 +604,6 @@ ret:
   spolyvec_free (r1_s);
   spolyvec_free (r1_m);
 
-  STOPWATCH_STOP (stopwatch_lnp_quad_verify);
+  STOPWATCH_STOP (stopwatch_rf_quad_verify);
   return accept;
 }

@@ -21,31 +21,31 @@ main (void)
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_many (seed, modif_params1);
+      test_rf_quad_many (seed, rf_quad_params1);
     }
 
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_many (seed, modif_params2);
+      test_rf_quad_many (seed, rf_quad_params2);
     }
 
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_many (seed, modif_params3);
+      test_rf_quad_many (seed, rf_quad_params3);
     }
 
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_many (seed, modif_params4);
+      test_rf_quad_many (seed, rf_quad_params4);
     }
 
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_many (seed, modif_params5);
+      test_rf_quad_many (seed, rf_quad_params5);
     }
   TEST_PASS ();
 }

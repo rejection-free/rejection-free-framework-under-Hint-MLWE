@@ -19,30 +19,30 @@ main (void)
   for (i = 0; i < 1; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_mabdlop (seed, modif_params1);
+      test_mabdlop (seed, rf_params1);
     }
     
   for (i = 0; i < 1; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_mabdlop (seed, modif_params2);
+      test_mabdlop (seed, rf_params2);
     }
     
   for (i = 0; i < 1; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_mabdlop (seed, modif_params3);
+      test_mabdlop (seed, rf_params3);
     }
     
   for (i = 0; i < 1; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_mabdlop (seed, modif_params4);
+      test_mabdlop (seed, rf_params4);
     }
   for (i = 0; i < 1; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_mabdlop (seed, modif_params5);
+      test_mabdlop (seed, rf_params5);
     }  
   TEST_PASS ();
 }

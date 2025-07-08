@@ -1,5 +1,7 @@
 #include "lazer.h"
+#include "stopwatch.h"
 
+#define INCINDENT 2
 /* poly.c */
 void
 poly_addscale2 (poly_t r, const int_t a, poly_t b, int crt)

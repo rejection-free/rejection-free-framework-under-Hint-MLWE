@@ -16,5 +16,5 @@ tests/rf-abdlop-test
 tests/rf-quad-test
 tests/rf-quad-many-test
 tests/rf-quad-eval-test
-
+tests/*.o
 tests/*.h

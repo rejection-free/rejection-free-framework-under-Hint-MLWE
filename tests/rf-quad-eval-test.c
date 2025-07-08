@@ -24,27 +24,27 @@ main (void)
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_eval (seed, modif_eval_params1);
+      test_rf_quad_eval (seed, rf_quad_eval_params1);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_eval (seed, modif_eval_params2);
+      test_rf_quad_eval (seed, rf_quad_eval_params2);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_eval (seed, modif_eval_params3);
+      test_rf_quad_eval (seed, rf_quad_eval_params3);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_eval (seed, modif_eval_params4);
+      test_rf_quad_eval (seed, rf_quad_eval_params4);
     }
   for (i = 0; i < nexec; i++)
     {
       bytes_urandom (seed, sizeof (seed));
-      test_rf_quad_eval (seed, modif_eval_params5);
+      test_rf_quad_eval (seed, rf_quad_eval_params5);
     }
   TEST_PASS ();
 }
