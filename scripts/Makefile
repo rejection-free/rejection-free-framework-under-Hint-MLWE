@@ -10,27 +10,27 @@ params-setup:
 	
 
 params-abdlop: params-setup
-	sage modified-abdlop-codegen.sage ../params/params1.sage > ../tests/modified-abdlop-params1.h
-	sage modified-abdlop-codegen.sage ../params/params2.sage > ../tests/modified-abdlop-params2.h
-	sage modified-abdlop-codegen.sage ../params/params3.sage > ../tests/modified-abdlop-params3.h
-	sage modified-abdlop-codegen.sage ../params/params4.sage > ../tests/modified-abdlop-params4.h
-	sage modified-abdlop-codegen.sage ../params/params5.sage > ../tests/modified-abdlop-params5.h
+	sage rf_abdlop_param.sage ../params/params1.sage > ../tests/modified-abdlop-params1.h
+	sage rf_abdlop_param.sage ../params/params2.sage > ../tests/modified-abdlop-params2.h
+	sage rf_abdlop_param.sage ../params/params3.sage > ../tests/modified-abdlop-params3.h
+	sage rf_abdlop_param.sage ../params/params4.sage > ../tests/modified-abdlop-params4.h
+	sage rf_abdlop_param.sage ../params/params5.sage > ../tests/modified-abdlop-params5.h
 
-	rm modified-abdlop-codegen.sage.py
+	rm rf_abdlop_param.sage.py
 
 params-quad: params-setup
-	sage modified-quad-codegen.sage ../params/params1.sage > ../tests/modified-quad-params1.h
-	sage modified-quad-codegen.sage ../params/params2.sage > ../tests/modified-quad-params2.h
-	sage modified-quad-codegen.sage ../params/params3.sage > ../tests/modified-quad-params3.h
-	sage modified-quad-codegen.sage ../params/params4.sage > ../tests/modified-quad-params4.h
-	sage modified-quad-codegen.sage ../params/params5.sage > ../tests/modified-quad-params5.h
+	sage rf_quad_param.sage ../params/params1.sage > ../tests/modified-quad-params1.h
+	sage rf_quad_param.sage ../params/params2.sage > ../tests/modified-quad-params2.h
+	sage rf_quad_param.sage ../params/params3.sage > ../tests/modified-quad-params3.h
+	sage rf_quad_param.sage ../params/params4.sage > ../tests/modified-quad-params4.h
+	sage rf_quad_param.sage ../params/params5.sage > ../tests/modified-quad-params5.h
 
-	rm modified-quad-codegen.sage.py
+	rm rf_quad_param.sage.py
 
 params-many: params-setup
-	sage modified-quad-eval-codegen.sage ../params/params1.sage > ../tests/modified-quad-eval-params1.h
-	sage modified-quad-eval-codegen.sage ../params/params2.sage > ../tests/modified-quad-eval-params2.h
-	sage modified-quad-eval-codegen.sage ../params/params3.sage > ../tests/modified-quad-eval-params3.h
-	sage modified-quad-eval-codegen.sage ../params/params4.sage > ../tests/modified-quad-eval-params4.h
-	sage modified-quad-eval-codegen.sage ../params/params5.sage > ../tests/modified-quad-eval-params5.h
-	rm modified-quad-eval-codegen.sage.py
+	sage rf_quad_eval_param.sage ../params/params1.sage > ../tests/modified-quad-eval-params1.h
+	sage rf_quad_eval_param.sage ../params/params2.sage > ../tests/modified-quad-eval-params2.h
+	sage rf_quad_eval_param.sage ../params/params3.sage > ../tests/modified-quad-eval-params3.h
+	sage rf_quad_eval_param.sage ../params/params4.sage > ../tests/modified-quad-eval-params4.h
+	sage rf_quad_eval_param.sage ../params/params5.sage > ../tests/modified-quad-eval-params5.h
+	rm rf_quad_eval_param.sage.py

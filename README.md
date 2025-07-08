@@ -18,9 +18,9 @@ Using the `scripts` files, the user can manually generate the complete list of c
 Clone the repository
 --------------------
 
-As our code exploits the actual structure of the code from the [LaZer library](https://github.com/lazer-crypto/lazer), 
+As our code exploits the actual structure of the code from the [LaZer library](https://github.com/lazer-crypto/lazer) and from the [LWE-estimator](https://github.com/malb/lattice-estimator).
 we manage to use and link the github repository from the Library directly in ours.
-Then, in order to have the entire list of files from our code with the [LaZer library](https://github.com/lazer-crypto/lazer), run:
+Then, in order to have the entire list of files from our code with the libraries, run:
 
 `git clone --recursive git@github.com:rejection-free/rejection-free-framework-under-Hint-MLWE.git`
 
