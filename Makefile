@@ -11,7 +11,7 @@ LIBS += $(libgmp)
 
 .PHONY: default all
 default: lib
-all: lib-all
+all: clean-all lib-all params
 
 LAZER_DIR = lazer
 
@@ -193,7 +193,9 @@ tests/rf-quad-eval-test: tests/rf-quad-eval-test.c $(TESTDEPS) tests/rf-quad-eva
 tests/rf-quad-many-test: tests/rf-quad-many-test.c $(TESTDEPS) tests/rf-quad-params1.h tests/rf-quad-params2.h tests/rf-quad-params3.h tests/rf-quad-params4.h tests/rf-quad-params5.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(LAZER_DIR) -I$(LAZER_DIR)/tests -o $@ $< $(TESTLIBS)
 
-.PHONY: clean
+.PHONY: clean clean-all
+clean-all: clean clean-params
+
 clean:
 	rm -f lazer.h src/lazer.c liblazer.a liblazer.so 
 	cd scripts && rm -f moduli.sage.py rf-abdlop-codegen.sage.py rf-quad-codegen.sage.py rf-quad-eval-codegen.sage.py
@@ -202,3 +204,5 @@ clean:
 	cd $(THIRD_PARTY_DIR) && rm -rf $(HEXL_SUBDIR)
 	cd tests && rm -f *.o *.dSYM && cd .. && rm -f $(TESTS) && rm -f sage-test.sage.py  
 
+clean-params:
+	cd tests && rm -f *.h

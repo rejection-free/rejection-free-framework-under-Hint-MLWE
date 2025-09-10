@@ -6,7 +6,7 @@ import time
 from sage.stats.distributions.discrete_gaussian_polynomial import DiscreteGaussianDistributionPolynomialSampler
 from estimator import *
 
-# We do not claim the knowledge of this script and only modify the existant ones from the script subdirectory from the LaZer Library
+# We do not claim the knowledge of this script and only modify the existant ones from the script subdirectory from the LaZer Library.
 
 mp.mp.prec = 512 # precision for mp
 prec = 8  # precision for nstr
@@ -94,12 +94,14 @@ m_1 = m_1 + l # We keep l as the script of parameters can be used for the lnp fr
             # Third point: we enhance k * as we define the commitment scheme over the randomized encoding of size k * m_1
             # and need to provide security for this length and not for m_1 only      
 
+l = 0
+
 ### choices
 k = 2
 b = 2^(log2q//k)
 p = b ** k + 1
 lext = 1  # fixed for quad-proof
-l = 0
+
 
 if d not in [64, 128]:
     err("d not in [64,128]")
@@ -266,17 +268,17 @@ if not (kmlwe >= 0 and kmlwe == m_2 - kmsis - lext):
     err("protocol not simulatable because of the parameters")
 
 printv(
-    f"the commitment scheme is binding under MSIS({kmsis},{k*m_1 - lext + m_2}) with bound={nstr(bound_binding(), prec)})") 
+    f"the commitment scheme is binding under MSIS({kmsis},{k*m_1 + m_2}) with bound={nstr(bound_binding(), prec)})") 
 
 printv(
-    f"the commitment scheme is hiding under MLWE({kmsis+l},{kmlwe}) with sd={nstr(sigma_2, prec)})") 
+    f"the commitment scheme is hiding under MLWE({kmsis+lext},{kmlwe}) with sd={nstr(sigma_2, prec)})") 
 
 printv(
     f"protocol is simulatable under Hint-MLWE implied by MLWE({kmsis+lext},{kmlwe}) with sd={nstr(varsigma_2(), prec)})") 
 
 eknow = mpf(1)/mpf(Csize)
 printv(
-    f"protocol is knowledge-sound with knowledge error <= 2^({nstr(mp.ceil(mp.log(eknow,2)),prec)}) under MSIS({kmsis},{k*m_1- lext + m_2}) with bound={nstr(bound_know_soundness(), prec)})")
+    f"protocol is knowledge-sound with knowledge error <= 2^({nstr(mp.ceil(mp.log(eknow,2)),prec)}) under MSIS({kmsis},{k*m_1 + m_2}) with bound={nstr(bound_know_soundness(), prec)})")
 
 # print params
 printv(f"")
@@ -291,7 +293,7 @@ printv(f"gamma = {gamma}, log(gamma) ~ {nstr(mp.log(gamma,2),prec)}")
 printv(f"m = (q-1)/gamma = {m}, log(m) ~ {nstr(mp.log(m,2),prec)}")
 printv(f"")
 printv(f"Dimensions of secrets")
-printv(f"s1: m_1 = {(m_1-l)/k}")
+printv(f"s1: m_1 = {m_1}")
 printv(f"s2: m_2 = {m_2}")
 printv(f"")
 printv(f"Size of secrets")
@@ -363,13 +365,10 @@ out += f"""
 static const int_srcptr {name}_Ppmodq[] = {Ppmodq_array};
 static const polyring_t {name}_ring = {{{{{name}_q, {d}, {ceil(mp.log(p-1,2))}, {log2d}, moduli_d{d}, {nmoduli}, {name}_Pmodq, {name}_Ppmodq, {name}_inv2}}}};
 static const dcompress_params_t {name}_dcomp = {{{{ {name}_q, {name}_qminus1, {name}_m, {name}_mby2, {name}_gamma, {name}_gammaby2, {name}_pow2D, {name}_pow2Dby2, {D}, {m % 2}, {ceil(mp.log(m,2))} }}}};
-static const rf_abdlop_params_t {name} = {{{{ {name}_ring, {name}_dcomp, {name}_b, {m_1}, {m_2}, {l}, {lext}, {kmsis}, {name}_Bsq, {omega}, {omega_bits}, {eta}, {name}_sigma_1, {ceil(mp.log(sigma_1,2))}, {name}_sigma_2, {ceil(log(sigma_2,2))}, {name}_frak_s1, {ceil(mp.log(frak_s_1,2))}, {name}_frak_s2, {ceil(mp.log(frak_s_2,2))}}}}};
+static const rf_abdlop_params_t {name} = {{{{ {name}_ring, {name}_dcomp, {name}_b, {m_1}, {m_2}, {0}, {lext}, {kmsis}, {name}_Bsq, {omega}, {omega_bits}, {eta}, {name}_sigma_1, {ceil(mp.log(sigma_1,2))}, {name}_sigma_2, {ceil(log(sigma_2,2))}, {name}_frak_s1, {ceil(mp.log(frak_s_1,2))}, {name}_frak_s2, {ceil(mp.log(frak_s_2,2))}}}}};
 """
 
 printc(out)
 
 sys.exit(int(0))
 
-# Original scripts and proofs are coming from :
-# [1] Lattice-Based Zero-Knowledge Proofs Under a Few Dozen Kilobytes
-# https://doi.org/10.3929/ethz-b-000574844

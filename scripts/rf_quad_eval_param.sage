@@ -270,17 +270,17 @@ if not (kmlwe >= 0 and kmlwe == m_2 - kmsis - lext):
     err("protocol not simulatable because of the parameters")
 
 printv(
-    f"the commitment scheme is binding under MSIS({kmsis},{k*m_1 - lext + m_2}) with bound={nstr(bound_binding(), prec)})") 
+    f"the commitment scheme is binding under MSIS({kmsis},{k*m_1 + m_2}) with bound={nstr(bound_binding(), prec)})") 
 
 printv(
-    f"the commitment scheme is hiding under MLWE({kmsis+l},{kmlwe}) with sd={nstr(sigma_2, prec)})") 
+    f"the commitment scheme is hiding under MLWE({kmsis+lext},{kmlwe}) with sd={nstr(sigma_2, prec)})") 
 
 printv(
     f"protocol is simulatable under Hint-MLWE implied by MLWE({kmsis+lext},{kmlwe}) with sd={nstr(varsigma_2(), prec)})") 
 
 eknow = mpf(1)/mpf(Csize)
 printv(
-    f"protocol is knowledge-sound with knowledge error <= 2^({nstr(mp.ceil(mp.log(eknow,2)),prec)}) under MSIS({kmsis},{k*m_1- lext + m_2}) with bound={nstr(bound_know_soundness(), prec)})")
+    f"protocol is knowledge-sound with knowledge error <= 2^({nstr(mp.ceil(mp.log(eknow,2)),prec)}) under MSIS({kmsis},{k*m_1 + m_2}) with bound={nstr(bound_know_soundness(), prec)})")
 
 # print params
 printv(f"")
@@ -295,7 +295,7 @@ printv(f"gamma = {gamma}, log(gamma) ~ {nstr(mp.log(gamma,2),prec)}")
 printv(f"m = (q-1)/gamma = {m}, log(m) ~ {nstr(mp.log(m,2),prec)}")
 printv(f"")
 printv(f"Dimensions of secrets")
-printv(f"s1: m_1 = {(m_1-l)/k}")
+printv(f"s1: m_1 = {m_1-l}")
 printv(f"s2: m_2 = {m_2}")
 printv(f"")
 printv(f"Size of secrets")
